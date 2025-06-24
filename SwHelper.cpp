@@ -18,6 +18,7 @@ void SwHelper::resize()
         h = rect.bottom - rect.top;
     }
     buffer.resize(w * h);
+    buffer.shrink_to_fit(); //todo 尝试释放多余的内存
     canvas.reset(tvg::SwCanvas::gen());
     canvas->target(buffer.data(), w, w, h, tvg::ColorSpace::ARGB8888);
 }
