@@ -2,6 +2,8 @@
 #include <windowsx.h>
 #include "WindowBase.h"
 
+#define IDT_TIMER1 1
+
 WindowBase::WindowBase()
 {
 	
@@ -29,6 +31,7 @@ void WindowBase::initWindow()
     hwnd = CreateWindowEx(NULL, L"ScreenCapture", L"ScreenCapture", style, x, y, w, h, NULL, NULL, hinstance, NULL);
     SetWindowLongPtr(hwnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(this));
     swHelper = std::make_unique<SwHelper>(hwnd);
+    SetTimer(hwnd, IDT_TIMER1, 600, nullptr);
 }
 void WindowBase::show()
 {
@@ -93,11 +96,18 @@ LRESULT WindowBase::processWinMsg(UINT msg, WPARAM wParam, LPARAM lParam)
     case WM_PAINT: {
         PAINTSTRUCT ps;
         auto hdc = BeginPaint(hwnd, &ps);
-        paint(swHelper->getCanvas());
+        //paint(swHelper->getCanvas());
         swHelper->blitToScreen(hdc);
         ReleaseDC(hwnd, hdc);
         EndPaint(hwnd, &ps);
         return 0;
+    }    
+    case WM_TIMER:
+    {
+        if (wParam == IDT_TIMER1) {
+            paint(swHelper->getCanvas());
+        }
+        break;
     }
     case WM_LBUTTONDOWN:
     {

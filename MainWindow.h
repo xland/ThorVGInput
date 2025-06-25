@@ -21,4 +21,5 @@ private:
 	void initWinPosSize();
 private:
 	std::wstring text;
+	bool flag{ true };
 };

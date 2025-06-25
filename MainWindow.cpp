@@ -58,18 +58,36 @@ void MainWindow::mouseDBClick(const int& x, const int& y)
 
 void MainWindow::paint(tvg::Canvas* canvas)
 {
-    auto str = Util::ConvertToUTF8(text);
-    auto result = tvg::Text::load("C:\\Windows\\Fonts\\simhei.ttf");
-    auto text = tvg::Text::gen();
-    result = text->font("C:\\Windows\\Fonts\\simhei.ttf", 80);
-    result = text->text("\xe4\xb8\x8d\xe5\x88\xb0\xe9\x95\xbf\xe5\x9f\x8e\xe9\x9d\x9e\xe5\xa5\xbd\xe6\xb1\x89\xef\xbc\x81");
-    result = text->fill(255, 255, 255);
-    result = canvas->push(text);
+    //auto str = Util::ConvertToUTF8(text);
+    //auto result = tvg::Text::load("C:\\Windows\\Fonts\\Arial.ttf");
+    //auto text = tvg::Text::gen();
+    //text->font("Arial", 80);
+    //text->text("THORVG Text");
+    //text->fill(255, 255, 255);
+    //canvas->push(std::move(text));
 
-    auto bg = tvg::Shape::gen();
-    bg->appendRect(w - 200, h - 200, 160, 160);
-    bg->fill(116, 125, 255);
-    canvas->push(std::move(bg));
+    auto caret = tvg::Shape::gen();
+    caret->appendRect(290, 10, 22, 92);
+    if (flag) {
+
+        caret->fill(116, 125, 255);
+    }
+    else {
+        caret->fill(0, 0, 0,0);
+    }
+	flag = !flag;    
+    canvas->push(std::move(caret));
+
+    //auto bg = tvg::Shape::gen();
+    //bg->appendRect(w - 200, h - 200, 160, 160);
+    //bg->fill(116, 125, 255);
+    //canvas->push(std::move(bg));
     canvas->draw(true);
     canvas->sync();
+	RECT rect;
+	rect.left = 290;
+	rect.top = 10;
+	rect.right = 290 + 22;
+	rect.bottom = 10 + 92;
+	InvalidateRect(hwnd, nullptr, false);
 }
