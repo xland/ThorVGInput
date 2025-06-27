@@ -10,7 +10,7 @@ SwHelper::~SwHelper()
 {
 }
 
-void SwHelper::resize()
+void SwHelper::resize()  //when hwnd init or resize
 {
     {
         RECT rect;
@@ -18,22 +18,25 @@ void SwHelper::resize()
         w = rect.right - rect.left;
         h = rect.bottom - rect.top;
     }
-    buffer.resize(w * h);
-    buffer.shrink_to_fit(); //todo 尝试释放多余的内存
-    canvas.reset(tvg::SwCanvas::gen());
+    buffer.resize(w * h);  //std::vector<uint32_t> buffer;
+    buffer.shrink_to_fit();
+    canvas.reset(tvg::SwCanvas::gen());  //std::unique_ptr<tvg::SwCanvas> canvas;
     canvas->target(buffer.data(), w, w, h, tvg::ColorSpace::ARGB8888);
 
-    auto result = tvg::Text::load("C:\\Windows\\Fonts\\Arial.ttf");
-    auto text = tvg::Text::gen();
+    tvg::Text::load("C:\\Windows\\Fonts\\Arial.ttf");
+    text = tvg::Text::gen();
     text->font("Arial", 80);
     text->text("THORVG Text");
     text->fill(255, 255, 255);
-    canvas->push(std::move(text));
+    canvas->push(text);
 
-    auto bg = tvg::Shape::gen();
-    bg->appendRect(w - 200, h - 200, 160, 160);
-    bg->fill(116, 125, 255);
-    canvas->push(std::move(bg));
+    caret = tvg::Shape::gen();
+    caret->appendRect(290, 10, 22, 92);
+    caret->fill(116, 125, 255);
+    caret->strokeFill(0, 0, 255);
+    caret->strokeWidth(0);
+    canvas->push(caret);
+
     canvas->draw(true);
     canvas->sync();
 }

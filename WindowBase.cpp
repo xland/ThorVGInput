@@ -96,9 +96,8 @@ LRESULT WindowBase::processWinMsg(UINT msg, WPARAM wParam, LPARAM lParam)
     case WM_PAINT: {
         PAINTSTRUCT ps;
         auto hdc = BeginPaint(hwnd, &ps);
-        //paint(swHelper->getCanvas());
-        swHelper->blitToScreen(hdc);
-        ReleaseDC(hwnd, hdc);
+        BITMAPINFO bmi = { sizeof(BITMAPINFOHEADER), w, 0 - h, 1, 32, BI_RGB, h * 4 * w, 0, 0, 0, 0 };
+        SetDIBitsToDevice(hdc, 0, 0, w, h, 0, 0, 0, h, swHelper->buffer.data(), &bmi, DIB_RGB_COLORS);
         EndPaint(hwnd, &ps);
         return 0;
     }    

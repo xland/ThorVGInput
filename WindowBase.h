@@ -11,6 +11,7 @@ public:
 public:
 	int x, y, w, h;
 	HWND hwnd;
+	std::unique_ptr<SwHelper> swHelper;
 protected:
 	void initWindow();
 	virtual void paint(tvg::Canvas* canvas) {};
@@ -24,6 +25,5 @@ private:
 	static LRESULT CALLBACK routeWinMsg(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 	LRESULT CALLBACK processWinMsg(UINT msg, WPARAM wParam, LPARAM lParam);
 private:
-	std::unique_ptr<SwHelper> swHelper;
 };
 

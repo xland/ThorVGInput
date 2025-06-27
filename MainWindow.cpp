@@ -58,36 +58,14 @@ void MainWindow::mouseDBClick(const int& x, const int& y)
 
 void MainWindow::paint(tvg::Canvas* canvas)
 {
-    //auto str = Util::ConvertToUTF8(text);
-    //auto result = tvg::Text::load("C:\\Windows\\Fonts\\Arial.ttf");
-    //auto text = tvg::Text::gen();
-    //text->font("Arial", 80);
-    //text->text("THORVG Text");
-    //text->fill(255, 255, 255);
-    //canvas->push(std::move(text));
-
-    auto caret = tvg::Shape::gen();
-    caret->appendRect(290, 10, 22, 92);
     if (flag) {
-
-        caret->fill(116, 125, 255);
+        swHelper->caret->opacity(255);
     }
     else {
-        caret->fill(0, 0, 0,0);
+        swHelper->caret->opacity(0);
     }
-	flag = !flag;    
-    canvas->push(std::move(caret));
-
-    //auto bg = tvg::Shape::gen();
-    //bg->appendRect(w - 200, h - 200, 160, 160);
-    //bg->fill(116, 125, 255);
-    //canvas->push(std::move(bg));
-    canvas->draw(true);
+    flag = !flag;
+    canvas->draw();  //remove param true
     canvas->sync();
-	RECT rect;
-	rect.left = 290;
-	rect.top = 10;
-	rect.right = 290 + 22;
-	rect.bottom = 10 + 92;
-	InvalidateRect(hwnd, nullptr, false);
+    InvalidateRect(hwnd, nullptr, false);
 }

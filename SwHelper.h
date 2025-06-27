@@ -11,10 +11,12 @@ class SwHelper
 		void resize();
 		void blitToScreen(HDC hdc);
 		tvg::Canvas* getCanvas();
+		std::vector<uint32_t> buffer;
+		tvg::Shape* caret;
+		tvg::Text* text;
 	private:
 		HWND hwnd;
 		std::unique_ptr<tvg::SwCanvas> canvas;
-		std::vector<uint32_t> buffer;
 		uint32_t w, h;
 };
 
