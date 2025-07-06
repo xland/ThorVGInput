@@ -149,7 +149,7 @@ void MainWindow::paint()
     }
     flag = !flag;
     canvas->update();
-    canvas->draw(true);
+    canvas->draw(false);
     canvas->sync();
     InvalidateRect(hwnd, nullptr, false);
 }
