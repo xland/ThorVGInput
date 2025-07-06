@@ -1,25 +1,26 @@
 #pragma once
 #include <Windows.h>
-#include "WindowBase.h"
 #include <string>
 
-class MainWindow:public WindowBase
+class MainWindow
 {
 public:
 	MainWindow();
     ~MainWindow();
 public:
 protected:
-	void mousePress(const int& x, const int& y) override;
-	void mousePressRight(const int& x, const int& y) override;
-	void mouseDBClick(const int& x, const int& y) override;
-	void mouseMove(const int& x, const int& y) override;
-	void mouseDrag(const int& x, const int& y) override;
-	void mouseRelease(const int& x, const int& y) override;
-	void paint(tvg::Canvas* canvas) override;
+	void paint();
 private:
+	void initWindow();
 	void initWinPosSize();
+	void initCanvas();
+	static LRESULT CALLBACK routeWinMsg(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 private:
-	std::wstring text;
+	int x, y, w, h;
+	HWND hwnd;
 	bool flag{ true };
+	std::unique_ptr<tvg::SwCanvas> canvas;
+	std::vector<uint32_t> buffer;
+	tvg::Shape* caret;
+	tvg::Text* text;
 };

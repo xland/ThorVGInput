@@ -5,19 +5,12 @@
 #include "Util.h"
 #include "MainWindow.h"
 
+#define IDT_TIMER1 1000000
 
 MainWindow::MainWindow()
 {
 	initWinPosSize();
     initWindow();
-    text = LR"(破阵子·为陈同甫赋壮词以寄之
-辛弃疾 · 宋 · XinQiJi(1140年－1207年) 
-
-醉里挑灯看剑，梦回吹角连营。
-八百里分麾下炙，五十弦翻塞外声，沙场秋点兵。
-马作的卢飞快，弓如霹雳弦惊。
-了却君王天下事，赢得生前身后名。可怜白发生！
-)";
 }
 
 MainWindow::~MainWindow()
@@ -34,38 +27,129 @@ void MainWindow::initWinPosSize()
     x = (screenWidth - w) / 2;
     y = (screenHeight - h) / 2;
 }
-
-void MainWindow::mouseMove(const int& x, const int& y)
+void MainWindow::initCanvas()
 {
+    {
+        RECT rect;
+        GetClientRect(hwnd, &rect);
+        w = rect.right - rect.left;
+        h = rect.bottom - rect.top;
+        buffer.resize(w * h);
+        buffer.shrink_to_fit();
+    }
+    if (!canvas.get()) {
+        canvas.reset(tvg::SwCanvas::gen());
+    }
+    canvas->target(buffer.data(), w, w, h, tvg::ColorSpace::ARGB8888);
+    if (!text) {
+        tvg::Text::load("C:\\Windows\\Fonts\\Arial.ttf");
+        text = tvg::Text::gen();
+        text->font("Arial", 80);
+        text->text("THORVG Text");
+        text->fill(255, 255, 255);
+        canvas->push(text);
+    }
+    if (!caret) {
+        caret = tvg::Shape::gen();
+        caret->appendRect(290, 10, 22, 92);
+        caret->fill(116, 125, 255);
+        caret->strokeFill(0, 0, 255);
+        caret->strokeWidth(0);
+        canvas->push(caret);
+    }
+    canvas->draw(true);
+    canvas->sync();
 }
-void MainWindow::mouseDrag(const int& x, const int& y) {
-
-}
-void MainWindow::mouseRelease(const int& x, const int& y)
+void MainWindow::initWindow()
 {
+    WNDCLASSEX wcx{};
+    auto hinstance = GetModuleHandle(NULL);
+    wcx.cbSize = sizeof(wcx);
+    wcx.style = CS_HREDRAW | CS_VREDRAW | CS_DBLCLKS; // | CS_OWNDC | CS_BYTEALIGNCLIENT
+    wcx.lpfnWndProc = &MainWindow::routeWinMsg;
+    wcx.cbWndExtra = sizeof(MainWindow*);
+    wcx.hInstance = hinstance;
+    wcx.hIcon = LoadIcon(hinstance, IDI_APPLICATION);
+    wcx.hCursor = LoadCursor(NULL, IDC_IBEAM);
+    wcx.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
+    wcx.lpszClassName = L"ScreenCapture";
+    RegisterClassEx(&wcx);
+    auto style = WS_OVERLAPPEDWINDOW;
+    hwnd = CreateWindowEx(NULL, L"ScreenCapture", L"ScreenCapture", style, x, y, w, h, NULL, NULL, hinstance, NULL);
+    SetWindowLongPtr(hwnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(this));
+    SetTimer(hwnd, IDT_TIMER1, 600, nullptr);
+    ShowWindow(hwnd, SW_SHOW);
+    UpdateWindow(hwnd);
+    SetCursor(LoadCursor(nullptr, IDC_ARROW));
 }
-void MainWindow::mousePress(const int& x, const int& y)
+LRESULT MainWindow::routeWinMsg(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
-}
+    auto obj = reinterpret_cast<MainWindow*>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
+    if (!obj) {
+        return DefWindowProc(hWnd, msg, wParam, lParam);
+    }
+    switch (msg)
+    {
+    case WM_ERASEBKGND:
+    {
+        return TRUE;
+    }
+    case WM_CLOSE:
+    {
+        DestroyWindow(hWnd);
+        return 0;
+    }
+    case WM_DESTROY:
+    {
+        SetWindowLongPtr(hWnd, GWLP_USERDATA, 0);
+        UnregisterClass(L"ScreenCapture", nullptr);
+        return 0;
+    }
+    case WM_MOVE: {
+        obj->x = LOWORD(lParam);
+        obj->y = HIWORD(lParam);
+        return 0;
+    }
+    case WM_SIZE: {
+        //todo minimize
+        obj->w = LOWORD(lParam);
+        obj->h = HIWORD(lParam);
+        obj->initCanvas();
+        return 0;
+    }
+    case WM_PAINT: {
+        PAINTSTRUCT ps;
+        auto hdc = BeginPaint(obj->hwnd, &ps);
+        BITMAPINFO bmi = { sizeof(BITMAPINFOHEADER), obj->w, 0 - obj->h, 1, 32, BI_RGB, obj->h * 4 * obj->w, 0, 0, 0, 0 };
+        SetDIBitsToDevice(hdc, 0, 0, obj->w, obj->h, 0, 0, 0, obj->h, obj->buffer.data(), &bmi, DIB_RGB_COLORS);
+        EndPaint(obj->hwnd, &ps);
+        return 0;
+    }
+    case WM_TIMER:
+    {
+        if (wParam == IDT_TIMER1) {
+            obj->paint();
+        }
+        break;
+    }
 
-void MainWindow::mousePressRight(const int& x, const int& y)
-{
-}
 
-void MainWindow::mouseDBClick(const int& x, const int& y)
-{
+    default: {
+        return DefWindowProc(obj->hwnd, msg, wParam, lParam);
+    }
+    }
 }
-
-void MainWindow::paint(tvg::Canvas* canvas)
+void MainWindow::paint()
 {
     if (flag) {
-        swHelper->caret->opacity(255);
+        caret->opacity(255);
     }
     else {
-        swHelper->caret->opacity(0);
+        caret->opacity(0);
     }
     flag = !flag;
-    canvas->draw();  //remove param true
+    canvas->update();
+    canvas->draw(true);
     canvas->sync();
     InvalidateRect(hwnd, nullptr, false);
 }

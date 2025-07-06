@@ -144,16 +144,12 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="MainWindow.h" />
-    <ClInclude Include="SwHelper.h" />
     <ClInclude Include="Util.h" />
-    <ClInclude Include="WindowBase.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MainWindow.cpp" />
-    <ClCompile Include="SwHelper.cpp" />
     <ClCompile Include="Util.cpp" />
-    <ClCompile Include="WindowBase.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

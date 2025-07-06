@@ -7,7 +7,6 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 {
     tvg::Initializer::init(std::thread::hardware_concurrency());
     MainWindow mainWin;
-    mainWin.show();
     MSG msg;
     while (GetMessage(&msg, NULL, 0, 0))
     {
